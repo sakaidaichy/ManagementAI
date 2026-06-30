@@ -7,35 +7,27 @@
 <body>
     <h1>ニュース一覧</h1>
 
-    <p>
-        <a href="/">ダッシュボードへ戻る</a>
-    </p>
+    <p><a href="/">ダッシュボードへ戻る</a></p>
 
     <form method="get" action="/news">
-        <label>
-            キーワード：
-            <input type="text" name="keyword" value="{{ keyword }}">
-        </label>
+        キーワード：
+        <input type="text" name="keyword" value="{{ keyword }}">
 
-        <label>
-            カテゴリ：
-            <select name="category">
-                <option value="">すべて</option>
-                {% for c in ["助成金", "補助金", "労務", "社会保険", "税務", "介護", "熊本・地域", "未分類"] %}
-                    <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-            </select>
-        </label>
+        カテゴリ：
+        <select name="category">
+            <option value="">すべて</option>
+            {% for c in ["助成金", "補助金", "労務", "社会保険", "税務", "介護", "熊本・地域", "未分類"] %}
+                <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
 
-        <label>
-            重要度：
-            <select name="min_importance">
-                <option value="0" {% if min_importance == 0 %}selected{% endif %}>すべて</option>
-                <option value="3" {% if min_importance == 3 %}selected{% endif %}>★★★以上</option>
-                <option value="4" {% if min_importance == 4 %}selected{% endif %}>★★★★以上</option>
-                <option value="5" {% if min_importance == 5 %}selected{% endif %}>★★★★★のみ</option>
-            </select>
-        </label>
+        重要度：
+        <select name="min_importance">
+            <option value="0" {% if min_importance == 0 %}selected{% endif %}>すべて</option>
+            <option value="3" {% if min_importance == 3 %}selected{% endif %}>★★★以上</option>
+            <option value="4" {% if min_importance == 4 %}selected{% endif %}>★★★★以上</option>
+            <option value="5" {% if min_importance == 5 %}selected{% endif %}>★★★★★のみ</option>
+        </select>
 
         <button type="submit">検索</button>
     </form>
