@@ -1,3 +1,6 @@
+from app.importance import judge_importance
+from app.categories import judge_category
+
 import sqlite3
 from datetime import datetime
 from app.config import DB_PATH
@@ -31,6 +34,8 @@ def save_news_items(items):
     new_items = []
 
     for item in items:
+        item["importance"] = judge_importance(item["title"])
+        item["category"] = judge_category(item["title"])
         try:
             cur.execute("""
                 INSERT INTO news (
