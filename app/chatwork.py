@@ -1,25 +1,31 @@
 import requests
 
-from app.config import CHATWORK_API_TOKEN, CHATWORK_ROOM_ID, APP_MODE
+from app.config import (
+    CHATWORK_API_TOKEN,
+    CHATWORK_TEST_ROOM_ID,
+    CHATWORK_PRODUCTION_ROOM_ID,
+    APP_MODE,
+)
 from app.importance import stars
 from app.logger import logger
 
 
-def post_to_chatwork(message: str) -> bool:
-    if APP_MODE != "production":
-        print("\n【TEST MODE】Chatworkには投稿しません。")
-        print("-------- 投稿予定メッセージ --------")
-        print(message)
-        print("----------------------------------")
-        logger.info("TEST MODEのためChatwork投稿をスキップ")
-        return True
+def get_chatwork_room_id():
+    if APP_MODE == "production":
+        return CHATWORK_PRODUCTION_ROOM_ID
 
-    if not CHATWORK_API_TOKEN or not CHATWORK_ROOM_ID:
+    return CHATWORK_TEST_ROOM_ID
+
+
+def post_to_chatwork(message: str) -> bool:
+    room_id = get_chatwork_room_id()
+
+    if not CHATWORK_API_TOKEN or not room_id:
         print("Chatwork設定が未入力のため投稿をスキップしました。")
         logger.warning("Chatwork設定が未入力です。")
         return False
 
-    url = f"https://api.chatwork.com/v2/rooms/{CHATWORK_ROOM_ID}/messages"
+    url = f"https://api.chatwork.com/v2/rooms/{room_id}/messages"
 
     headers = {
         "X-ChatWorkToken": CHATWORK_API_TOKEN
@@ -32,7 +38,10 @@ def post_to_chatwork(message: str) -> bool:
     try:
         response = requests.post(url, headers=headers, data=data, timeout=15)
         response.raise_for_status()
-        logger.info("Chatwork投稿成功")
+
+        print(f"Chatwork投稿成功：APP_MODE={APP_MODE}")
+        logger.info(f"Chatwork投稿成功：APP_MODE={APP_MODE}")
+
         return True
 
     except Exception as e:
