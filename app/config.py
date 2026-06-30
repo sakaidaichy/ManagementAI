@@ -49,3 +49,5 @@ SOURCES = [
         "keywords": ["高齢介護", "介護", "高齢者", "事業者", "補助金"],
     },
 ]
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+USE_OPENAI_ANALYSIS = os.getenv("USE_OPENAI_ANALYSIS", "false").lower() == "true"

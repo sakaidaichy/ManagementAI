@@ -18,6 +18,10 @@ def init_db():
             url TEXT NOT NULL UNIQUE,
             category TEXT DEFAULT '未分類',
             importance INTEGER DEFAULT 3,
+            relevance INTEGER DEFAULT 3,
+            summary TEXT DEFAULT '',
+            impact TEXT DEFAULT '',
+            action TEXT DEFAULT '',
             posted INTEGER DEFAULT 0,
             created_at TEXT NOT NULL
         )
