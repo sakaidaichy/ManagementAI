@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ManagementAI</title>
+</head>
+<body>
+    <h1>ManagementAI ダッシュボード</h1>
+
+    <h2>最新ニュース</h2>
+
+    {% if news_items %}
+        {% for item in news_items %}
+            <div style="border:1px solid #ccc; padding:12px; margin-bottom:12px;">
+                <div>{{ item.created_at }} / {{ item.source }} / {{ item.category }}</div>
+                <h3>{{ item.title }}</h3>
+                <div>重要度：{{ item.importance }} / 関連度：{{ item.relevance }}</div>
+
+                {% if item.summary %}
+                    <p><strong>要約：</strong>{{ item.summary }}</p>
+                {% endif %}
+
+                <p><a href="{{ item.url }}" target="_blank">原文を見る</a></p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>ニュースはまだありません。</p>
+    {% endif %}
+</body>
+</html>
