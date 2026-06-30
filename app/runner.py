@@ -1,9 +1,21 @@
-from app.config import SOURCES
 from app.database import init_db, save_news_items
 from app.logger import logger
 from app.chatwork import post_to_chatwork, make_urgent_message
 
-from collectors.common import extract_links
+from collectors import yamagami
+from collectors import mhlw
+from collectors import kumamoto_labor
+from collectors import kumamoto_city
+from collectors import tamana_city
+
+
+COLLECTORS = [
+    yamagami,
+    mhlw,
+    kumamoto_labor,
+    kumamoto_city,
+    tamana_city,
+]
 
 
 def collect_news():
@@ -12,15 +24,8 @@ def collect_news():
 
     all_items = []
 
-    for source in SOURCES:
-        print(f"取得中: {source['name']}")
-
-        items = extract_links(
-            source_name=source["name"],
-            base_url=source["url"],
-            keywords=source["keywords"],
-        )
-
+    for collector in COLLECTORS:
+        items = collector.collect()
         all_items.extend(items)
 
     logger.info(f"ニュース取得完了: {len(all_items)}件")
