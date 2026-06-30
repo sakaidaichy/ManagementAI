@@ -44,10 +44,17 @@ def post_to_chatwork(message: str) -> bool:
 def make_urgent_message(item: dict) -> str:
     importance = item.get("importance", 3)
 
+    summary = item.get("summary") or "要約は未作成です。原文の確認をお願いします。"
+    impact = item.get("impact") or "助成金・労務・介護制度・補助金等に関係する可能性があります。"
+    action = item.get("action") or "原文確認、申請予定・社内運用への影響確認、必要に応じた専門家確認をお願いします。"
+
     return f"""【労務・助成金ニュースBot｜緊急配信】
 
 ■重要度
 {stars(importance)}
+
+■会社関連度
+{stars(item.get("relevance", 3))}
 
 ■カテゴリ
 {item.get("category", "未分類")}
@@ -58,14 +65,14 @@ def make_urgent_message(item: dict) -> str:
 ■タイトル
 {item.get("title", "")}
 
-■当社への影響
-助成金・労務・介護制度・補助金等に関係する可能性があります。
-管理部で内容確認を推奨します。
+■要約
+{summary}
 
-■対応案
-□ 原文を確認
-□ 現在の申請予定・運用に影響がないか確認
-□ 必要に応じて社労士・関係機関へ確認
+■当社への影響
+{impact}
+
+■管理部対応
+{action}
 
 ■参考URL
 {item.get("url", "")}
