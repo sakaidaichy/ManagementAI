@@ -17,5 +17,7 @@ LOG_PATH = LOG_DIR / "bot.log"
 CHATWORK_API_TOKEN = os.getenv("CHATWORK_API_TOKEN")
 CHATWORK_ROOM_ID = os.getenv("CHATWORK_ROOM_ID")
 
+APP_MODE = os.getenv("APP_MODE", "test")
+
 REQUEST_TIMEOUT = 30
 USER_AGENT = "Mozilla/5.0"

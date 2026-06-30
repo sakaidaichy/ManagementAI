@@ -1,11 +1,19 @@
 import requests
 
-from app.config import CHATWORK_API_TOKEN, CHATWORK_ROOM_ID
+from app.config import CHATWORK_API_TOKEN, CHATWORK_ROOM_ID, APP_MODE
 from app.importance import stars
 from app.logger import logger
 
 
 def post_to_chatwork(message: str) -> bool:
+    if APP_MODE != "production":
+        print("\n【TEST MODE】Chatworkには投稿しません。")
+        print("-------- 投稿予定メッセージ --------")
+        print(message)
+        print("----------------------------------")
+        logger.info("TEST MODEのためChatwork投稿をスキップ")
+        return True
+
     if not CHATWORK_API_TOKEN or not CHATWORK_ROOM_ID:
         print("Chatwork設定が未入力のため投稿をスキップしました。")
         logger.warning("Chatwork設定が未入力です。")
