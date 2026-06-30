@@ -1,7 +1,8 @@
-from app.database import init_db, save_news_items, mark_as_posted
+from app.database import init_db, save_news_items, mark_as_posted, update_analysis
 from app.logger import logger
 from app.chatwork import post_to_chatwork, make_urgent_message
-from app.analyzers.analyzer import analyze_items
+from app.analyzers.rule_based import analyze_by_rules
+from app.analyzers.analyzer import analyze_item
 
 from collectors import yamagami
 from collectors import mhlw
@@ -31,6 +32,17 @@ def collect_news():
 
     logger.info(f"ニュース取得完了: {len(all_items)}件")
     return all_items
+
+
+def analyze_new_items_with_ai(new_items):
+    analyzed_items = []
+
+    for item in new_items:
+        analyzed_item = analyze_item(item)
+        update_analysis(analyzed_item["url"], analyzed_item)
+        analyzed_items.append(analyzed_item)
+
+    return analyzed_items
 
 
 def send_urgent_news(new_items):
@@ -66,28 +78,33 @@ def run_daily_collection():
 
     all_items = collect_news()
 
-    analyzed_items = analyze_items(all_items)
+    rule_analyzed_items = [
+        analyze_by_rules(item)
+        for item in all_items
+    ]
 
-    new_items = save_news_items(analyzed_items)
+    new_items = save_news_items(rule_analyzed_items)
 
-    urgent_posted_count = send_urgent_news(new_items)
+    ai_analyzed_new_items = analyze_new_items_with_ai(new_items)
+
+    urgent_posted_count = send_urgent_news(ai_analyzed_new_items)
 
     print("\n==============================")
     print("日次ニュース取得 完了")
     print(f"取得候補数: {len(all_items)}件")
-    print(f"分析済み件数: {len(analyzed_items)}件")
     print(f"新着保存数: {len(new_items)}件")
+    print(f"AI分析対象数: {len(ai_analyzed_new_items)}件")
     print(f"緊急配信数: {urgent_posted_count}件")
     print("==============================")
 
     logger.info(
-        f"日次ニュース取得 完了: 取得候補数={len(all_items)}件 / 分析済み件数={len(analyzed_items)}件 / 新着保存数={len(new_items)}件 / 緊急配信数={urgent_posted_count}件"
+        f"日次ニュース取得 完了: 取得候補数={len(all_items)}件 / 新着保存数={len(new_items)}件 / AI分析対象数={len(ai_analyzed_new_items)}件 / 緊急配信数={urgent_posted_count}件"
     )
 
     return {
         "all_count": len(all_items),
-        "analyzed_count": len(analyzed_items),
         "new_count": len(new_items),
+        "ai_analyzed_count": len(ai_analyzed_new_items),
         "urgent_posted_count": urgent_posted_count,
-        "new_items": new_items,
+        "new_items": ai_analyzed_new_items,
     }

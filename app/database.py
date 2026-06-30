@@ -97,6 +97,34 @@ def save_news_items(items):
     return new_items
 
 
+def update_analysis(url: str, item: dict):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE news
+        SET
+            category = ?,
+            importance = ?,
+            relevance = ?,
+            summary = ?,
+            impact = ?,
+            action = ?
+        WHERE url = ?
+    """, (
+        item.get("category", "未分類"),
+        item.get("importance", 3),
+        item.get("relevance", 3),
+        item.get("summary", ""),
+        item.get("impact", ""),
+        item.get("action", ""),
+        url,
+    ))
+
+    conn.commit()
+    conn.close()
+
+
 def mark_as_posted(url: str):
     conn = get_connection()
     cur = conn.cursor()
