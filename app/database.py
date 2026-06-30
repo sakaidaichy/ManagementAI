@@ -137,3 +137,49 @@ def mark_as_posted(url: str):
 
     conn.commit()
     conn.close()
+
+
+def get_recent_news(limit: int = 30):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            source,
+            title,
+            url,
+            category,
+            importance,
+            relevance,
+            summary,
+            impact,
+            action,
+            created_at
+        FROM news
+        ORDER BY
+            importance DESC,
+            relevance DESC,
+            created_at DESC
+        LIMIT ?
+    """, (limit,))
+
+    rows = cur.fetchall()
+    conn.close()
+
+    items = []
+
+    for row in rows:
+        items.append({
+            "source": row[0],
+            "title": row[1],
+            "url": row[2],
+            "category": row[3],
+            "importance": row[4],
+            "relevance": row[5],
+            "summary": row[6],
+            "impact": row[7],
+            "action": row[8],
+            "created_at": row[9],
+        })
+
+    return items
