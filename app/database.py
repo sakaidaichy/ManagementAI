@@ -166,21 +166,7 @@ def get_recent_news(limit: int = 30):
     rows = cur.fetchall()
     conn.close()
 
-    return [
-        {
-            "source": row[0],
-            "title": row[1],
-            "url": row[2],
-            "category": row[3],
-            "importance": row[4],
-            "relevance": row[5],
-            "summary": row[6],
-            "impact": row[7],
-            "action": row[8],
-            "created_at": row[9],
-        }
-        for row in rows
-    ]
+    return rows_to_items(rows)
 
 
 def get_news_since(days: int = 7):
@@ -210,6 +196,59 @@ def get_news_since(days: int = 7):
     rows = cur.fetchall()
     conn.close()
 
+    return rows_to_items(rows)
+
+
+def search_news(keyword: str = "", category: str = "", min_importance: int = 0):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    sql = """
+        SELECT
+            source,
+            title,
+            url,
+            category,
+            importance,
+            relevance,
+            summary,
+            impact,
+            action,
+            created_at
+        FROM news
+        WHERE 1 = 1
+    """
+
+    params = []
+
+    if keyword:
+        sql += " AND title LIKE ?"
+        params.append(f"%{keyword}%")
+
+    if category:
+        sql += " AND category = ?"
+        params.append(category)
+
+    if min_importance:
+        sql += " AND importance >= ?"
+        params.append(min_importance)
+
+    sql += """
+        ORDER BY
+            importance DESC,
+            relevance DESC,
+            created_at DESC
+        LIMIT 100
+    """
+
+    cur.execute(sql, params)
+    rows = cur.fetchall()
+    conn.close()
+
+    return rows_to_items(rows)
+
+
+def rows_to_items(rows):
     return [
         {
             "source": row[0],
