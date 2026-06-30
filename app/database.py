@@ -1,6 +1,3 @@
-from app.importance import judge_importance
-from app.categories import judge_category
-
 import sqlite3
 from datetime import datetime
 from app.config import DB_PATH
@@ -27,6 +24,24 @@ def init_db():
         )
     """)
 
+    # 既存DBに列が足りない場合の追加対応
+    cur.execute("PRAGMA table_info(news)")
+    columns = [row[1] for row in cur.fetchall()]
+
+    add_columns = {
+        "category": "TEXT DEFAULT '未分類'",
+        "importance": "INTEGER DEFAULT 3",
+        "relevance": "INTEGER DEFAULT 3",
+        "summary": "TEXT DEFAULT ''",
+        "impact": "TEXT DEFAULT ''",
+        "action": "TEXT DEFAULT ''",
+        "posted": "INTEGER DEFAULT 0",
+    }
+
+    for column_name, column_type in add_columns.items():
+        if column_name not in columns:
+            cur.execute(f"ALTER TABLE news ADD COLUMN {column_name} {column_type}")
+
     conn.commit()
     conn.close()
 
@@ -38,8 +53,6 @@ def save_news_items(items):
     new_items = []
 
     for item in items:
-        item["importance"] = judge_importance(item["title"])
-        item["category"] = judge_category(item["title"])
         try:
             cur.execute("""
                 INSERT INTO news (
@@ -48,16 +61,24 @@ def save_news_items(items):
                     url,
                     category,
                     importance,
+                    relevance,
+                    summary,
+                    impact,
+                    action,
                     posted,
                     created_at
                 )
-                VALUES (?, ?, ?, ?, ?, 0, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
             """, (
-                item["source"],
-                item["title"],
-                item["url"],
+                item.get("source", ""),
+                item.get("title", ""),
+                item.get("url", ""),
                 item.get("category", "未分類"),
                 item.get("importance", 3),
+                item.get("relevance", 3),
+                item.get("summary", ""),
+                item.get("impact", ""),
+                item.get("action", ""),
                 datetime.now().isoformat(timespec="seconds"),
             ))
 
