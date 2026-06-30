@@ -47,8 +47,15 @@ def analyze_new_items_with_ai(new_items):
 
 def send_urgent_news(new_items):
     urgent_items = [
-        item for item in new_items
-        if item.get("importance", 3) >= 5 and item.get("relevance", 3) >= 4
+    item for item in new_items
+    if (
+        item.get("category") in ["助成金", "補助金"]
+        or "助成金" in item.get("title", "")
+        or "補助金" in item.get("title", "")
+        or "キャリアアップ" in item.get("title", "")
+        or "業務改善" in item.get("title", "")
+    )
+    and item.get("relevance", 3) >= 4
     ]
 
     if not urgent_items:

@@ -6,6 +6,53 @@ MAX_WEEKLY_ITEMS = 10
 MAIN_NEWS_COUNT = 3
 
 
+PRIORITY_KEYWORDS = [
+    "助成金",
+    "補助金",
+    "キャリアアップ",
+    "業務改善",
+    "人材開発",
+    "両立支援",
+    "公募",
+    "申請",
+    "募集",
+]
+
+
+LOW_PRIORITY_KEYWORDS = [
+    "労働災害",
+    "労災",
+    "統計",
+    "審議会",
+    "検討会",
+    "報道発表",
+    "告発",
+]
+
+
+def priority_score(item):
+    title = item.get("title", "")
+    category = item.get("category", "")
+
+    score = 0
+
+    if category in ["助成金", "補助金"]:
+        score += 100
+
+    for keyword in PRIORITY_KEYWORDS:
+        if keyword in title:
+            score += 50
+
+    for keyword in LOW_PRIORITY_KEYWORDS:
+        if keyword in title:
+            score -= 100
+
+    score += item.get("importance", 3) * 10
+    score += item.get("relevance", 3) * 5
+
+    return score
+
+
 def make_weekly_report():
     init_db()
 
@@ -14,12 +61,10 @@ def make_weekly_report():
     if not items:
         return "【ManagementAI 週間ニュース】\n\n直近7日間のニュースはありません。"
 
-    # 重要度・関連度・新しさ順で並び替え
     sorted_items = sorted(
         items,
         key=lambda item: (
-            item.get("importance", 3),
-            item.get("relevance", 3),
+            priority_score(item),
             item.get("created_at", ""),
         ),
         reverse=True,
@@ -33,7 +78,7 @@ def make_weekly_report():
     lines = []
     lines.append("【ManagementAI 週間ニュース】")
     lines.append("")
-    lines.append("直近7日間の労務・助成金・介護関連ニュースから、重要度の高い情報を最大10件に絞って配信します。")
+    lines.append("直近7日間のニュースから、助成金・補助金情報を優先して最大10件に絞って配信します。")
     lines.append("")
 
     lines.append("━━━━━━━━━━━━━━")
