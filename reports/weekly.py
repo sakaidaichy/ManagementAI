@@ -1,19 +1,19 @@
-from app.database import init_db, get_recent_news
+from app.database import init_db, get_news_since
 from app.importance import stars
 
 
 def make_weekly_report():
     init_db()
 
-    items = get_recent_news(limit=20)
+    items = get_news_since(days=7)
 
     if not items:
-        return "【労務・助成金ニュース週報】\n\n今週のニュースはありません。"
+        return "【労務・助成金ニュース週報】\n\n直近7日間のニュースはありません。"
 
     lines = []
     lines.append("【労務・助成金ニュース週報】")
     lines.append("")
-    lines.append("今週確認された主な労務・助成金・介護関連ニュースです。")
+    lines.append("直近7日間に確認された主な労務・助成金・介護関連ニュースです。")
     lines.append("")
 
     for i, item in enumerate(items, start=1):
