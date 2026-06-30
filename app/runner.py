@@ -1,4 +1,4 @@
-from app.database import init_db, save_news_items
+from app.database import init_db, save_news_items, mark_as_posted
 from app.logger import logger
 from app.chatwork import post_to_chatwork, make_urgent_message
 from app.analyzers.analyzer import analyze_items
@@ -52,6 +52,7 @@ def send_urgent_news(new_items):
 
         if success:
             posted_count += 1
+            mark_as_posted(item["url"])
             print(f"緊急配信完了: {item['title']}")
         else:
             print(f"緊急配信失敗: {item['title']}")

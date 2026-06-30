@@ -1,10 +1,10 @@
-import os
-from dotenv import load_dotenv
+from openai import OpenAI
 
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from app.config import OPENAI_API_KEY
 
 
-def is_openai_enabled() -> bool:
-    return bool(OPENAI_API_KEY)
+def get_client():
+    if not OPENAI_API_KEY:
+        return None
+
+    return OpenAI(api_key=OPENAI_API_KEY)

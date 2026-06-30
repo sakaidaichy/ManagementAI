@@ -1,10 +1,15 @@
 import sqlite3
 from datetime import datetime
+
 from app.config import DB_PATH
 
 
+def get_connection():
+    return sqlite3.connect(DB_PATH)
+
+
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
@@ -24,7 +29,6 @@ def init_db():
         )
     """)
 
-    # 既存DBに列が足りない場合の追加対応
     cur.execute("PRAGMA table_info(news)")
     columns = [row[1] for row in cur.fetchall()]
 
@@ -47,7 +51,7 @@ def init_db():
 
 
 def save_news_items(items):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_connection()
     cur = conn.cursor()
 
     new_items = []
@@ -91,3 +95,17 @@ def save_news_items(items):
     conn.close()
 
     return new_items
+
+
+def mark_as_posted(url: str):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE news
+        SET posted = 1
+        WHERE url = ?
+    """, (url,))
+
+    conn.commit()
+    conn.close()
